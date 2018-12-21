@@ -1,0 +1,10 @@
+survival -- Survival -- 0 = No, 1 = Yes
+pclass -- Ticket class -- 1, 2, 3 (upper, middle, lower)
+sex
+age -- ***MISSING***
+sibsp -- Number of sibling / spouses
+parch -- number of parents / children
+ticket -- ticket number
+fare -- passenger fare
+cabin -- cabin number                        ***MISSING***
+embarked -- port of embarkation -- C, Q, S   ***MISSING***
