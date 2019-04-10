@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 from functions import cost, sigmoid
+import sklearn.linear_model as sklm
 
 data = pd.read_csv('train.csv')
 data_test = pd.read_csv('test.csv')
@@ -38,8 +39,11 @@ y = y.values  # converting y labels into np array
 x0 = np.zeros([n+1, 1])
 x0 = np.reshape(x0, (n+1,))
 # print(cost(x0, X, y))
-res = opt.minimize(cost, x0, args=(X, y), method='BFGS')
+res = opt.minimize(cost, x0, args=(X, y), method='BFGS', tol=1e-9)
 theta = np.transpose(res.x)
+clf = sklm.LogisticRegression(random_state=0, solver='lbfgs', C=0.2, multi_class='ovr', max_iter=1000).fit(X, y)
+print(clf.intercept_, clf.coef_)
+
 # print(res)
 print('**************************')
 print('theta coefficients are:', theta)
@@ -47,6 +51,14 @@ print('theta coefficients are:', theta)
 
 theta = np.reshape(theta, (-1, 1))
 bias = np.ones((np.shape(X_test)[0], 1))
+X_test2 = X_test.values
+
+for i in range(np.shape(X_test2)[0]):
+    for j in range(np.shape(X_test2)[1]):
+        if np.isnan(X_test2[i][j]):
+            X_test2[i][j] = 10
+
+y_pred = clf.predict(X_test2)
 X_test = np.concatenate((bias, X_test), axis=1)
 
 prediction = sigmoid(np.matmul(X_test, theta))
@@ -57,10 +69,17 @@ for it in range(len(prediction)):
     else:
         prediction[it] = 0
 # print(prediction)
+
 passengerId = np.zeros(np.shape(X_test)[0])
 for it in range(np.shape(X_test)[0]):
     passengerId[it] = 892 + it
 
 res = {'PassengerId': passengerId, 'Survived': prediction}
+res2 = {'PassengerId': passengerId, 'Survived': y_pred}
 df = pd.DataFrame(res)
+df = df.astype(int)
 df.to_csv('Result.csv', index=False)
+df2 = pd.DataFrame(res2)
+df2 = df.astype(int)
+df2.to_csv('Result2.csv', index=False)
+print('Results written...')
